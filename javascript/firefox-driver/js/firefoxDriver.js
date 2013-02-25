@@ -249,7 +249,7 @@ FirefoxDriver.prototype.close = function(respond) {
 
 function injectAndExecuteScript(respond, parameters, isAsync, timer) {
   var doc = respond.session.getDocument();
-
+  var isSVG = doc.doctype && doc.doctype.name === "svg";
   var script = parameters['script'];
   var converted = Utils.unwrapParameters(parameters['args'], doc);
 
@@ -361,17 +361,25 @@ function injectAndExecuteScript(respond, parameters, isAsync, timer) {
   // Attach the listener to the DOM
   var addListener = function() {
     if (!doc.getUserData('webdriver-evaluate-attached')) {
-      var element = doc.createElement('script');
-      element.setAttribute('type', 'text/javascript');
-      element.innerHTML = FirefoxDriver.listenerScript;
-      doc.body.appendChild(element);
+      var element;
+      if(isSVG) {
+        element = doc.createElementNS("http://www.w3.org/2000/svg", "script");
+        element.setAttribute("type", "text/ecmascript");
+        element.textContent = FirefoxDriver.listenerScript;
+        doc.getElementsByTagName("svg")[0].appendChild(element);
+      } else {
+        element = doc.createElement("script");
+        element.setAttribute("type", "text/javascript");
+        element.innerHTML = FirefoxDriver.listenerScript;
+        doc.body.appendChild(element);
+      }
       element.parentNode.removeChild(element);
     }
     timer.runWhenTrue(checkScriptLoaded, runScript, 10000, scriptLoadTimeOut);
   };
 
   var checkDocBodyLoaded = function() {
-    return !!doc.body;
+    return isSVG ? doc.childNodes[1] : !!doc.body;
   };
 
   timer.runWhenTrue(checkDocBodyLoaded, addListener, 10000, docBodyLoadTimeOut);

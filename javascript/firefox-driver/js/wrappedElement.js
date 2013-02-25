@@ -186,8 +186,12 @@ WebElement.sendKeysToElement = function(respond, parameters) {
   if (currentlyActive != element || currentDocument != new XPCNativeWrapper(newDocument)) {
     fxdriver.logging.info('Need to switch focus');
     alreadyFocused = false;
-    currentlyActive.blur();
-    element.focus();
+    if (goog.isFunction(currentlyActive.blur)) {
+      currentlyActive.blur();
+    }
+    if (goog.isFunction(element.focus)) {
+       element.focus();
+    }
     element.ownerDocument.defaultView.focus();
   } else {
     fxdriver.logging.info('No need to switch focus');

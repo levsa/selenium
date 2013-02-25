@@ -121,7 +121,7 @@ bot.window.getInteractableSize = function(opt_win) {
   var win = opt_win || bot.getWindow();
   var doc = win.document;
   var elem = doc.documentElement;
-  var body = doc.body;
+  var body = doc.body || doc.rootElement;
   if (!body) {
     throw new bot.Error(bot.ErrorCode.UNKNOWN_ERROR,
         'No BODY element present');
