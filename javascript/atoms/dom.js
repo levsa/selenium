@@ -499,6 +499,8 @@ bot.dom.getEffectiveStyle = function(elem, propertyName) {
  */
 bot.dom.getCascadedStyle_ = function(elem, styleName) {
   var style = elem.currentStyle || elem.style;
+  if (!style)
+    return null;
   var value = style[styleName];
   if (!goog.isDef(value) && goog.isFunction(style['getPropertyValue'])) {
     value = style['getPropertyValue'](styleName);
